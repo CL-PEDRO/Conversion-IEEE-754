@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>IEEE-754 Floating Point Converter</title>
+   <style>
+       #boxExponent { background-color: aquamarine; }
+       #boxSigno { background-color: bisque; }
+       #boxMantissia { background-color: aqua; }
+       #titleTable { font-family: 'Franklin Gothic Medium', Arial, sans-serif; }
+       body { background-color: #F5EDED; }
+       .normalLetter { font-family: 'Times New Roman', Times, serif; color: #6482AD; }
+   </style>
+</head>
+<body>
+
+    <header style="font-family: 'Courier New', Courier, monospace;">
+        <h1>IEEE-754 Floating Point Converter</h1>
+    </header>
+
+    <div>     
+        <form class="normalLetter">
+            <p>Ingrese un número en base 10:
+                <input placeholder="Ingrese un número" type="number" step="any" id="n10" onkeydown="checkEnter(event)">
+            </p>
+        </form>
+        <p class="normalLetter">
+            Ingrese la base:
+            <select id="base">
+                <option value="2">IEEE</option>
+            </select>
+        </p>
+        <input type="button" value="convertir" onclick="convertir_10()">
+
+        <div style="display: flex;">
+            <table border="1" style="background-color:#E2DAD6;">
+                <tr id="titleTable">
+                    <th>Signo</th>
+                    <th>Exponente</th>
+                    <th>Mantissa</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;" id="boxSigno">
+                        <input type="checkbox" name="signo" id="signo" value="1">
+                    </td>
+                    <td style="padding: 10px;" id="boxExponent">
+                        <input type="checkbox" name="expo" id="exp0">
+                        <input type="checkbox" name="expo" id="exp1">
+                        <input type="checkbox" name="expo" id="exp2">
+                        <input type="checkbox" name="expo" id="exp3">
+                        <input type="checkbox" name="expo" id="exp4">
+                        <input type="checkbox" name="expo" id="exp5">
+                        <input type="checkbox" name="expo" id="exp6">
+                        <input type="checkbox" name="expo" id="exp7">
+                    </td>
+
+                    <td style="padding: 15px;" id="boxMantissia">
+                        
+
+                        <input type="checkbox" name="Mant" id="0">
+                        <input type="checkbox" name="Mant" id="1">
+                        <input type="checkbox" name="Mant" id="2">
+                        <input type="checkbox" name="Mant" id="3">
+                        <input type="checkbox" name="Mant" id="4">
+                        <input type="checkbox" name="Mant" id="5">
+                        <input type="checkbox" name="Mant" id="6">
+                        <input type="checkbox" name="Mant" id="7">
+                        <input type="checkbox" name="Mant" id="8">
+                        <input type="checkbox" name="Mant" id="9">
+                        <input type="checkbox" name="Mant" id="10">
+                        <input type="checkbox" name="Mant" id="11">
+                        <input type="checkbox" name="Mant" id="12">
+                        <input type="checkbox" name="Mant" id="13">
+                        <input type="checkbox" name="Mant" id="14">
+                        <input type="checkbox" name="Mant" id="15">
+                        <input type="checkbox" name="Mant" id="16">
+                        <input type="checkbox" name="Mant" id="17">
+                        <input type="checkbox" name="Mant" id="18">
+                        <input type="checkbox" name="Mant" id="19">
+                        <input type="checkbox" name="Mant" id="20">
+                        <input type="checkbox" name="Mant" id="21">
+                        <input type="checkbox" name="Mant" id="22">
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td class="normalLetter" id="textoSigno">-</td>
+                    <td class="normalLetter" id="textoExponet">-</td>
+                    <td class="normalLetter" id="textoMantissa">-</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+
+    <script>
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                convertir_10();
+            }
+        }
+
+        function convertir_10() {
+            let valor = parseFloat(document.getElementById("n10").value);
+            let base = parseInt(document.getElementById("base").value);
+
+            let intPart = Math.floor(valor);
+            let floatPart = valor - intPart;
+
+            let bitSign = valor >= 0 ? 0 : 1;
+
+            document.getElementById("signo").checked = bitSign === 1;
+
+            document.getElementById("textoSigno").innerText = bitSign.toString();
+
+            let respuestaInt = conversionBinary(intPart);
+            let respuestaFloat = convertFloatToBinary(floatPart, 23);
+
+            let mantissa = (respuestaInt.slice(1) + respuestaFloat).padEnd(23, '0').slice(0, 23);
+            document.getElementById("textoMantissa").innerText = mantissa;
+
+            // Calcular exponente
+            let exponent = respuestaInt.length - 1;
+            let E = conversionBinary(exponent + 127).padStart(8, '0');
+            document.getElementById("textoExponet").innerText = E;
+            checkingBoxes(E, 1);
+            checkingBoxes(mantissa, 5);
+        }
+
+        function conversionBinary(val) {
+            let result = "";
+            while (val > 0) {
+                result = (val % 2).toString() + result;
+                val = Math.trunc(val / 2);
+            }
+            return result || "0";
+        }
+
+        function convertFloatToBinary(floatPart, bits) {
+            let result = "";
+            for (let i = 0; i < bits; i++) {
+                floatPart *= 2;
+                result += Math.floor(floatPart);
+                floatPart -= Math.floor(floatPart);
+            }
+            return result;
+        }
+
+        function checkingBoxes(binary, type) {
+            let checkboxes = document.getElementsByName(type === 1 ? "expo" : "Mant");
+            for (let i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = binary[i] === "1";
+            }
+        }
+    </script>
+
+</body>
+</html>
